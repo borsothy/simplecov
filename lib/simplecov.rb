@@ -109,10 +109,24 @@ module SimpleCov
     #
     def filtered(files)
       result = files.clone
+      # STDOUT.puts("ALL FILTERS:")
+      # filters.each { |f| STDOUT.puts(f.filter_argument) }
+      # STDOUT.puts("ALL FILES:")
+      # result.each { |f| STDOUT.puts(f.filename) }
       filters.each do |filter|
-        result = result.reject { |source_file| filter.matches?(source_file) }
+        result = result.reject do |source_file|
+          result = filter.matches?(source_file)
+          lib_dir = 'cloud-database-api/lib/acquia'
+          if result && source_file.filename =~ /#{lib_dir}/
+            STDOUT.puts("FILTERED: #{filter.filter_argument} #{source_file.filename}")
+          end
+          result 
+        end
       end
-      SimpleCov::FileList.new result
+      result = SimpleCov::FileList.new result
+      STDOUT.puts("FILES TO BE INSPECTED:")
+      result.each { |f| STDOUT.puts(f.filename) }
+      result
     end
 
     #
